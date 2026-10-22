@@ -1,23 +1,18 @@
-name: Check skills
-
+name: Check hardened skill
 on:
   push:
-    branches: [main]
   pull_request:
-
+permissions:
+  contents: read
 jobs:
-  check:
+  isolated-regressions:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 22
-      - name: Every SKILL.md frontmatter parses (as Claude Code and Codex parse it)
-        run: |
-          npm install --no-save --no-package-lock yaml@2.6.1
-          node tests/frontmatter.mjs
-      - name: Scripts parse
-        run: for f in skills/taste-skill/scripts/*.mjs skills/taste-skill/scripts/lib/*.mjs skills/taste-skill/assets/*.js; do node --check "$f" || exit 1; done
-      - name: Browser profile cleanup regression
-        run: node --test tests/profile-cleanup.mjs
+          persist-credentials: false
+      - name: Build disposable test runtime
+        run: docker build -f tests/Dockerfile -t taste-hardened-test .
+      - name: Run real-browser and security regressions without network or credentials
+        run: python3 tests/run-isolated.py --image taste-hardened-test

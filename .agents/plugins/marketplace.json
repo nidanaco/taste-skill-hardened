@@ -1,15 +1,14 @@
 {
-  "name": "taste-skill",
+  "name": "taste-skill-hardened",
   "interface": {
-    "displayName": "Taste Skill"
+    "displayName": "Taste Skill Hardened"
   },
   "plugins": [
     {
-      "name": "taste-skill",
+      "name": "taste-skill-hardened",
       "source": {
-        "source": "url",
-        "url": "https://github.com/Leonxlnx/taste-skill.git",
-        "ref": "main"
+        "source": "local",
+        "path": "./plugins/taste-skill-hardened"
       },
       "policy": {
         "installation": "AVAILABLE",

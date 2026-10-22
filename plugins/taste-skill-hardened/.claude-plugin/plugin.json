@@ -1,0 +1,9 @@
+{
+  "name": "taste-skill-hardened",
+  "version": "2.1.4-hardened.1",
+  "description": "Offline frontend design guidance and hardened local inspection.",
+  "author": {
+    "name": "nidanaco"
+  },
+  "license": "MIT"
+}

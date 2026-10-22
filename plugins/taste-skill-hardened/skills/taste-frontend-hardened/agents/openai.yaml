@@ -1,0 +1,5 @@
+interface:
+  display_name: "Taste Frontend Hardened"
+  short_description: "Offline frontend direction and bounded local inspection."
+policy:
+  allow_implicit_invocation: false

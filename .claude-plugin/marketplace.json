@@ -1,25 +1,15 @@
 {
-  "name": "taste-skill",
-  "description": "tasteskill: art direction for coding agents, for websites, product pages, dashboards and app screens, checked in a real browser.",
+  "name": "taste-skill-hardened",
   "owner": {
-    "name": "leonxlnx",
-    "email": "hello@tasteskill.dev"
+    "name": "nidanaco"
   },
   "plugins": [
     {
-      "name": "taste-skill",
-      "description": "tasteskill v2: art direction for websites, product pages, dashboards and app screens, with a library of researched directions, real pictures from open collections and a real-browser inspector.",
-      "version": "2.1.4",
-      "source": "./",
-      "skills": ["./skills/taste-skill"],
-      "author": {
-        "name": "leonxlnx",
-        "email": "hello@tasteskill.dev"
-      },
-      "homepage": "https://github.com/Leonxlnx/taste-skill",
-      "repository": "https://github.com/Leonxlnx/taste-skill",
-      "license": "MIT",
-      "keywords": ["skills", "frontend", "design", "taste", "ui", "dashboard"]
+      "name": "taste-skill-hardened",
+      "source": "./plugins/taste-skill-hardened",
+      "description": "Offline frontend design guidance and hardened local inspection.",
+      "version": "2.1.4-hardened.1"
     }
-  ]
+  ],
+  "description": "Reviewed offline frontend guidance and bounded local inspection for Codex and Claude Code."
 }
