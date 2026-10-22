@@ -92,14 +92,18 @@ for (const host of ['codex', 'claude', 'charts']) for (const mode of modes.filte
         assert.equal(record.form.action,'/book'); assert.equal(record.form.method,'post'); assert.equal(record.form.type,'email'); assert.equal(record.form.name,'email'); assert.equal(record.form.label,'Email address');
         assert.deepEqual(record.form.available,['6 places available','4 places available']); assert.equal(record.form.brand,'#174c3c'); assert.ok(record.form.sizes.every(r=>r.w>=44&&r.h>=44));
         record.keyboard=[];
+        await page.send('Page.bringToFront');
         for(let index=0;index<4;index++) {
           await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
           await page.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
-          record.keyboard.push(await page.eval(()=>{const e=document.activeElement,s=getComputedStyle(e),r=e.getBoundingClientRect();return {tag:e.tagName,focus:e.matches(':focus-visible'),outline:s.outlineStyle,width:parseFloat(s.outlineWidth),inViewport:r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth};}));
+          // Native focus scrolling can settle on a later compositor frame. Keep
+          // subpixel rounding within 1 CSS px, matching the overflow check.
+          await page.eval(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
+          record.keyboard.push(await page.eval(()=>{const e=document.activeElement,s=getComputedStyle(e),r=e.getBoundingClientRect();return {tag:e.tagName,focus:e.matches(':focus-visible'),outline:s.outlineStyle,width:parseFloat(s.outlineWidth),rect:{top:r.top,bottom:r.bottom,left:r.left,right:r.right},inViewport:r.top>=-1&&r.bottom<=innerHeight+1&&r.left>=-1&&r.right<=innerWidth+1};}));
           if(output && index===3)await page.screenshot({path:join(output,host+'-'+mode.name+'-focus.png'),format:'png',fullPage:true});
         }
         assert.equal(record.keyboard.map(r=>r.tag).join(','),'A,A,INPUT,BUTTON');
-        assert.ok(record.keyboard.every(r=>r.focus&&r.outline==='solid'&&r.width>=2&&r.inViewport));
+        assert.ok(record.keyboard.every(r=>r.focus&&r.outline==='solid'&&r.width>=2&&r.inViewport),JSON.stringify(record.keyboard));
         await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9,modifiers:8});
         await page.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9,modifiers:8});
         assert.equal(await page.eval('document.activeElement.id'), 'email');
