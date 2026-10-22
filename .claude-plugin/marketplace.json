@@ -8,7 +8,7 @@
       "name": "taste-skill-hardened",
       "source": "./plugins/taste-skill-hardened",
       "description": "Offline frontend design guidance and hardened local inspection.",
-      "version": "2.1.4-hardened.1"
+      "version": "2.1.4-hardened.2"
     }
   ],
   "description": "Reviewed offline frontend guidance and bounded local inspection for Codex and Claude Code."

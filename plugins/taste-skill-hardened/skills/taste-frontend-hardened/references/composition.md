@@ -12,6 +12,11 @@ explain the offer. Keep text readable at small widths. Use a consistent grid and
 spacing scale, deliberate type hierarchy, visible focus, and sufficient contrast.
 An unusual composition must still accommodate real content and keyboard use.
 
+When adjusting flex or grid forms, let inputs shrink within their containers
+(`min-width: 0` and a suitable maximum width). Check the changed layout with
+enlarged text as well as narrow viewports; intrinsic control widths can otherwise
+force horizontal scrolling even when the ordinary phone layout fits.
+
 Preserve truthful imagery and claims. A missing product photograph is not license
 to substitute an unrelated image as if it depicts the product. An honest diagram,
 local illustration, or type-led composition is often sufficient.

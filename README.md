@@ -34,10 +34,14 @@ snapshot. Do not replace the local source with an unpinned remote source.
 
 ## Testing without installing
 
-Run `node --test tests/*.test.mjs` with Node 24+.
+Run `node --test --test-concurrency=1 tests/*.test.mjs` with Node 24+.
 The browser tests also need an installed Chromium-compatible browser; set
 `CHROME_PATH` to its absolute executable. They use synthetic fixtures only.
 The inspector command is documented in the skill.
+Set `TASTE_VISUAL_OUT` to an output directory to retain the visual suite's
+screenshots, measured layout/contrast/focus results, and repeated inspector reports.
+The regression fixtures include the corrected enlarged-text workshop form and
+compact chart cards. No model calls or plugin installation are needed.
 
 Run Claude Code's `plugin validate --strict --json` against both the repository
 and plugin directory. Codex's native app-server parser can read the package and its

@@ -443,11 +443,14 @@
     const list = document.createElement('ul'); list.style.cssText = 'list-style:none;margin:0;padding:0;display:grid;gap:12px;font-variant-numeric:tabular-nums';
     for (const r of rows) {
       const drift = r.value - r.target;
-      const li = document.createElement('li'); li.style.cssText = 'display:grid;grid-template-columns:minmax(90px,30%) 1fr auto;align-items:center;gap:12px';
-      const track = dom('span', null, 'position:relative;height:10px;background:var(--rule,#eceeef);border-radius:2px');
+      const li = document.createElement('li'); li.style.cssText = 'display:grid;grid-template-columns:minmax(0,1fr);gap:8px';
+      // Reserve a complete row for the track. Figure text may wrap without
+      // consuming the bar's width in a compact card or at enlarged text sizes.
+      const track = dom('span', null, 'position:relative;min-width:0;height:10px;background:var(--rule,#eceeef);border-radius:2px');
       track.append(dom('span', null, `position:absolute;inset:0 auto 0 0;width:${(r.value / max) * 100}%;background:var(--chart-1,#2f6fdf);border-radius:2px`), dom('span', null, `position:absolute;top:-4px;bottom:-4px;left:${(r.target / max) * 100}%;width:2px;margin-left:-1px;background:var(--text,#111)`));
-      const figures = dom('span'); figures.append(dom('b', format(r.value), 'font-weight:500'), dom('span', ` ${drift >= 0 ? '+' : '−'}${format(Math.abs(drift))} vs ${format(r.target)}`, `color:${Math.abs(drift) >= (r.tolerance ?? 0.02) ? 'var(--negative,#c4242a)' : 'var(--muted,#5f6368)'}`));
-      li.append(dom('span', r.label), track, figures);
+      const figures = dom('span', null, 'min-width:0;overflow-wrap:anywhere'); figures.append(dom('b', format(r.value), 'font-weight:500'), dom('span', ` ${drift >= 0 ? '+' : '−'}${format(Math.abs(drift))} vs ${format(r.target)}`, `color:${Math.abs(drift) >= (r.tolerance ?? 0.02) ? 'var(--negative,#c4242a)' : 'var(--muted,#5f6368)'}`));
+      const label = dom('span', r.label, 'min-width:0;overflow-wrap:anywhere');
+      li.append(label, track, figures);
       li.setAttribute('aria-label', `${r.label}: ${format(r.value)}, target ${format(r.target)}`);
       list.appendChild(li);
     }

@@ -49,6 +49,7 @@ ul[class], ol[class] { padding: 0; list-style: none; }
 img, video, svg, canvas { display: block; max-width: 100%; }
 img, video { height: auto; background: var(--surface); }
 button, input, select, textarea { font: inherit; color: inherit; }
+input, select, textarea { min-width: 0; max-width: 100%; }
 button { background: none; border: 0; padding: 0; cursor: pointer; }
 a { color: inherit; }
 :target { scroll-margin-top: 6rem; }

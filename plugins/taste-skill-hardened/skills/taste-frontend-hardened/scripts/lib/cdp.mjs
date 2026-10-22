@@ -1,10 +1,10 @@
 // Minimal CDP client for an isolated, disposable browser profile.
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { loopbackURL, proxyBypass } from './network-policy.mjs';
+import { denyProxy } from './deny-proxy.mjs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export function findChrome() {
@@ -15,15 +15,6 @@ export function findChrome() {
   }
   for (const path of ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge', '/usr/bin/chromium', '/usr/bin/google-chrome', '/usr/bin/microsoft-edge']) if (existsSync(path)) return path;
   throw new Error('No browser found; set CHROME_PATH to an installed browser. Nothing will be installed automatically.');
-}
-
-async function denyProxy() {
-  let count = 0;
-  const server = createServer((_req, res) => { count++; res.writeHead(403); res.end(); });
-  server.on('connect', (_req, socket) => { count++; socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n'); });
-  server.on('upgrade', (_req, socket) => { count++; socket.destroy(); });
-  await new Promise((done, fail) => { server.once('error', fail); server.listen(0, '127.0.0.1', done); });
-  return { url: 'http://127.0.0.1:' + server.address().port, get count() { return count; }, close: () => { server.closeAllConnections(); server.close(); } };
 }
 
 export class Browser {
