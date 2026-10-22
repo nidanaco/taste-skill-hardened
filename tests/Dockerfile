@@ -3,4 +3,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends chromium ca-cer
 ENV CHROME_PATH=/usr/bin/chromium
 USER node
 WORKDIR /repo
-CMD ["node", "--test", "tests/browser.test.mjs", "tests/draw.test.mjs", "tests/network-policy.test.mjs", "tests/package.test.mjs", "tests/public-server.test.mjs"]
+CMD ["node", "--test", "--test-concurrency=1", "tests/browser.test.mjs", "tests/deny-proxy.test.mjs", "tests/draw.test.mjs", "tests/network-policy.test.mjs", "tests/package.test.mjs", "tests/public-server.test.mjs", "tests/visual.test.mjs"]
