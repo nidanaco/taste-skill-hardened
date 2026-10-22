@@ -23,16 +23,39 @@ export class Browser {
     const target = loopbackURL(allowedOrigin);
     const exe = findChrome(), base = process.env.TASTE_SKILL_TMP || tmpdir();
     const dir = mkdtempSync(join(base, 'taste-hardened-chrome-'));
-    let proc, proxy;
-    const cleanup = () => {
+    let proc, proxy, disposal;
+    const unhook = () => {
       for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.removeListener(signal, onSignal);
-      process.removeListener('exit', cleanup);
+      process.removeListener('exit', emergencyCleanup);
+    };
+    const emergencyCleanup = () => {
+      unhook();
       if (proc && proc.exitCode === null && proc.signalCode === null && !proc.killed) proc.kill();
       if (proxy) proxy.close();
       try { rmSync(dir, { recursive: true, force: true, maxRetries: 3 }); } catch {}
     };
-    const onSignal = () => { cleanup(); process.exit(130); };
-    process.once('exit', cleanup);
+    const running = () => proc && proc.exitCode === null && proc.signalCode === null;
+    const waitForExit = (timeoutMs) => new Promise((done) => {
+      if (!running()) { done(true); return; }
+      const finish = (exited) => { clearTimeout(timer); proc.removeListener('exit', exitedHandler); done(exited); };
+      const exitedHandler = () => finish(true);
+      const timer = setTimeout(() => finish(false), timeoutMs);
+      proc.once('exit', exitedHandler);
+    });
+    const cleanup = () => disposal ||= (async () => {
+      // A CDP close reply does not mean the browser has stopped writing its
+      // profile. Wait for process exit before removing only our owned directory.
+      if (running() && !await waitForExit(500)) {
+        proc.kill('SIGTERM');
+        if (!await waitForExit(2000)) { proc.kill('SIGKILL'); await waitForExit(2000); }
+      }
+      if (running()) throw new Error('browser did not exit; owned profile preserved: ' + dir);
+      if (proxy) await proxy.close();
+      rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+      unhook();
+    })();
+    const onSignal = () => { cleanup().catch(() => {}).finally(() => process.exit(130)); };
+    process.once('exit', emergencyCleanup);
     for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.once(signal, onSignal);
     try {
       proxy = await denyProxy();
@@ -75,7 +98,7 @@ export class Browser {
         }
       };
       return b;
-    } catch (error) { cleanup(); throw error; }
+    } catch (error) { await cleanup(); throw error; }
   }
   send(method, params = {}, sessionId, timeoutMs = 30000) {
     const id = this.nextId++;
@@ -105,7 +128,7 @@ export class Browser {
     this.closed = true;
     try { await this.send('Browser.close', {}, undefined, 3000); } catch {}
     try { this.ws.close(); } catch {}
-    await sleep(100); this.cleanup();
+    await this.cleanup();
     for (const { timer, fail } of this.pending.values()) { clearTimeout(timer); fail(new Error('browser closed')); }
     this.pending.clear();
     this.listeners.clear();

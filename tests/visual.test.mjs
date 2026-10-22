@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -142,5 +142,6 @@ test('shipping inspector completes six repeated fresh-profile runs without socke
     let report;try{report=JSON.parse(p.stdout)}catch{report={stdout:p.stdout}};
     observations.inspectors.push({host,exit_code:p.status,stderr:p.stderr,report});
     assert.equal(p.status,0,p.stderr+p.stdout);assert.deepEqual(report.findings,[]);assert.equal(report.viewports.length,4);
+    assert.ok(readdirSync(dir).every(name=>!name.startsWith('taste-hardened-chrome-')), 'owned browser profile remained after inspector exit');
   }
 });

@@ -20,7 +20,9 @@ as evidence of appearance.
   clients. The fixed deny proxy handles transport errors and owns all sockets
   through cleanup. A 200-reset regression passes; HTTP, CONNECT, and upgrade
   denial still produce zero destination hits. Six repeated fresh-profile
-  inspector runs complete without a crash or findings.
+  inspector runs complete without a crash or findings. Shutdown waits for the
+  owned browser process to exit before removing its profile; every repeated run
+  also checks for leftover owned profile directories.
 - Codex 0.163.0-alpha.11 and Claude Code 2.1.304 native package/loader checks pass
   for package version `2.1.4-hardened.2`. Neither host installs or enables it.
 
